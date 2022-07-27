@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 class ShortURLs(models.Model):
-    origin = models.CharField(editable=False, max_length=4096)
+    origin = models.URLField(editable=False, max_length=4096)
     slug = models.SlugField(
         unique=True,
         editable=False,
