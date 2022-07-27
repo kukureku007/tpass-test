@@ -2,8 +2,7 @@ import random
 
 from django.conf import settings
 from django.db import models
-from datetime import datetime
-from django.utils.text import slugify
+from django.utils import timezone
 
 
 class ShortURLs(models.Model):
@@ -14,14 +13,14 @@ class ShortURLs(models.Model):
         null=False,
         blank=True,
         db_index=True,
-        max_length=7
+        max_length=settings.SHORT_URL_SIZE
     )
     expiration_date = models.DateTimeField()
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)
 
     @property
     def is_expired(self):
-        return datetime.now > self.expiration_date
+        return timezone.now() > self.expiration_date
 
     def _generate_slug(self):
         is_unique = False
@@ -29,18 +28,16 @@ class ShortURLs(models.Model):
             slug_candidate = ''.join(
                 random.choices(
                     settings.VALID_LETTER_POOL,
-                    k=self.slug.max_length
+                    k=settings.SHORT_URL_SIZE
                 )
             )
             if ShortURLs.objects.all().filter(slug=slug_candidate).exists():
                 continue
             is_unique = True
 
-        self.slug = slugify(slug_candidate)
+        self.slug = slug_candidate
     
     def save(self, *args, **kwargs) -> None:
         if not self.pk:
             self._generate_slug()
         return super().save(*args, **kwargs)
-
-        
