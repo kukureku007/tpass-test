@@ -1,1 +1,1 @@
-web: gunicorn nova_test.wsgi
+web: gunicorn url_shortener.wsgi
